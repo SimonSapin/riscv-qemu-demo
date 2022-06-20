@@ -4,3 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+panic-halt = "0.2.0"
+riscv-rt = "0.8.1"
+
+[[bin]]
+name = "guest"
+path = "src/main.rs"
+harness = false
