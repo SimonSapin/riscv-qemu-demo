@@ -2,18 +2,23 @@
 #![no_main]
 
 use core::fmt::{self, Write};
+use core::ptr;
 use fdt::Fdt;
-use panic_halt as _;
+
+// FIXME: can we replace this with something Sync without atomic instructions?
+static mut UART_PTR: *mut u32 = ptr::null_mut();
+static mut TEST_FINISHER_PTR: *mut u32 = ptr::null_mut();
 
 #[riscv_rt::entry]
 fn main() -> ! {
     unsafe {
         let fdt = &Fdt::from_ptr(device_tree_ptr() as _).unwrap();
-        let uart_ptr = register_for_compatible_device(fdt, "ns16550a").unwrap();
-        let mut uart = Uart(uart_ptr);
+        UART_PTR = register_for_compatible_device(fdt, "ns16550a").unwrap();
+        TEST_FINISHER_PTR = register_for_compatible_device(fdt, "sifive,test0").unwrap();
+        let mut uart = Uart(UART_PTR);
         writeln!(uart, "Hello RISC-V!").unwrap();
-        let test_finisher = register_for_compatible_device(fdt, "sifive,test0").unwrap();
-        qemu_shutdown(test_finisher, 0)
+        assert!(false);
+        qemu_shutdown(0)
     }
 }
 
@@ -56,9 +61,25 @@ impl Write for Uart {
     }
 }
 
+#[inline(never)]
+#[panic_handler]
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    unsafe {
+        let ptr = UART_PTR;
+        if !ptr.is_null() {
+            let mut uart = Uart(UART_PTR);
+            let _ = writeln!(uart, "Rust panic: {}", info);
+        }
+        qemu_shutdown(1)
+    }
+}
+
 /// Signal QEMU to terminate simulation, through the "SiFive Test Finisher" device
-unsafe fn qemu_shutdown(test_finisher_device_ptr: *mut u32, exit_code: u16) -> ! {
-    test_finisher_device_ptr.write((exit_code as u32) << 16 | 0x3333);
+unsafe fn qemu_shutdown(exit_code: u16) -> ! {
+    let ptr = TEST_FINISHER_PTR;
+    if !ptr.is_null() {
+        ptr.write((exit_code as u32) << 16 | 0x3333)
+    }
     // Never reached, assuming the device is present and we have the right address
     loop {}
 }
