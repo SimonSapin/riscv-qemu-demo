@@ -4,7 +4,7 @@ use core::ptr::NonNull;
 
 pub static REGISTER: Register = Register::new();
 
-pub struct Uart(NonNull<u32>);
+pub struct Uart(NonNull<u8>);
 
 impl Uart {
     pub fn new() -> Option<Self> {
@@ -12,7 +12,7 @@ impl Uart {
     }
 
     pub fn write_byte(&self, byte: u8) {
-        unsafe { self.0.as_ptr().write_volatile(byte as _) }
+        unsafe { self.0.as_ptr().write_volatile(byte) }
     }
 }
 
