@@ -118,7 +118,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "riscv-qemu-guest"
+name = "riscv-qemu-demo"
 version = "0.1.0"
 dependencies = [
  "fdt",

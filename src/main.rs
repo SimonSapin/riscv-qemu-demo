@@ -16,8 +16,7 @@ fn main() -> ! {
         UART_PTR = register_for_compatible_device(fdt, "ns16550a").unwrap();
         TEST_FINISHER_PTR = register_for_compatible_device(fdt, "sifive,test0").unwrap();
         let mut uart = Uart(UART_PTR);
-        writeln!(uart, "Hello RISC-V!").unwrap();
-        assert!(false);
+        writeln!(uart, "Hello from Rust RISC-V!").unwrap();
         qemu_shutdown(0)
     }
 }
