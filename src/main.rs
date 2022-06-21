@@ -1,21 +1,22 @@
+#![feature(sync_unsafe_cell)]
 #![no_std]
 #![no_main]
 
+use core::cell::SyncUnsafeCell;
 use core::fmt::{self, Write};
 use core::ptr;
 use fdt::Fdt;
 
-// FIXME: can we replace this with something Sync without atomic instructions?
-static mut UART_PTR: *mut u32 = ptr::null_mut();
-static mut TEST_FINISHER_PTR: *mut u32 = ptr::null_mut();
+static UART_PTR: SyncUnsafeCell<*mut u32> = SyncUnsafeCell::new(ptr::null_mut());
+static TEST_FINISHER_PTR: SyncUnsafeCell<*mut u32> = SyncUnsafeCell::new(ptr::null_mut());
 
 #[riscv_rt::entry]
 fn main() -> ! {
     unsafe {
         let fdt = &Fdt::from_ptr(device_tree_ptr() as _).unwrap();
-        UART_PTR = register_for_compatible_device(fdt, "ns16550a").unwrap();
-        TEST_FINISHER_PTR = register_for_compatible_device(fdt, "sifive,test0").unwrap();
-        let mut uart = Uart(UART_PTR);
+        find_register(fdt, "ns16550a", &UART_PTR).unwrap();
+        find_register(fdt, "sifive,test0", &TEST_FINISHER_PTR).unwrap();
+        let mut uart = Uart(UART_PTR.get().read());
         writeln!(uart, "Hello from Rust RISC-V!").unwrap();
         qemu_shutdown(0)
     }
@@ -39,10 +40,16 @@ unsafe fn device_tree_ptr() -> *const u8 {
     boot_rom.add(offset).cast::<*const u8>().read()
 }
 
-fn register_for_compatible_device<T>(fdt: &Fdt, compatible_with: &str) -> Option<*mut T> {
+unsafe fn find_register<T>(
+    fdt: &Fdt,
+    compatible_with: &str,
+    cell: &SyncUnsafeCell<*mut T>,
+) -> Option<*mut T> {
     let device = fdt.find_compatible(&[compatible_with])?;
     let register = device.reg()?.next()?;
-    Some(register.starting_address as _)
+    let ptr = register.starting_address as _;
+    cell.get().write(ptr);
+    Some(ptr)
 }
 
 struct Uart(*mut u32);
@@ -64,9 +71,9 @@ impl Write for Uart {
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     unsafe {
-        let ptr = UART_PTR;
+        let ptr = UART_PTR.get().read();
         if !ptr.is_null() {
-            let mut uart = Uart(UART_PTR);
+            let mut uart = Uart(ptr);
             let _ = writeln!(uart, "Rust panic: {}", info);
         }
         qemu_shutdown(1)
@@ -75,7 +82,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 
 /// Signal QEMU to terminate simulation, through the "SiFive Test Finisher" device
 unsafe fn qemu_shutdown(exit_code: u16) -> ! {
-    let ptr = TEST_FINISHER_PTR;
+    let ptr = TEST_FINISHER_PTR.get().read();
     if !ptr.is_null() {
         ptr.write((exit_code as u32) << 16 | 0x3333)
     }
