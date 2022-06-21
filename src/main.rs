@@ -1,14 +1,19 @@
 #![no_std]
 #![no_main]
 
+use core::fmt::{self, Write};
 use fdt::Fdt;
 use panic_halt as _;
 
 #[riscv_rt::entry]
 fn main() -> ! {
     unsafe {
-        let fdt = Fdt::from_ptr(device_tree_ptr() as _).unwrap();
-        qemu_shutdown(test_finisher_device_ptr(&fdt), 0)
+        let fdt = &Fdt::from_ptr(device_tree_ptr() as _).unwrap();
+        let uart_ptr = register_for_compatible_device(fdt, "ns16550a").unwrap();
+        let mut uart = Uart(uart_ptr);
+        writeln!(uart, "Hello RISC-V!").unwrap();
+        let test_finisher = register_for_compatible_device(fdt, "sifive,test0").unwrap();
+        qemu_shutdown(test_finisher, 0)
     }
 }
 
@@ -30,14 +35,28 @@ unsafe fn device_tree_ptr() -> *const u8 {
     boot_rom.add(offset).cast::<*const u8>().read()
 }
 
-/// Pointer to the "SiFive Test Finisher" device
-fn test_finisher_device_ptr(fdt: &Fdt) -> *mut u32 {
-    let device = fdt.find_compatible(&["sifive,test0"]).unwrap();
-    let register = device.reg().unwrap().next().unwrap();
-    register.starting_address as _
+fn register_for_compatible_device<T>(fdt: &Fdt, compatible_with: &str) -> Option<*mut T> {
+    let device = fdt.find_compatible(&[compatible_with])?;
+    let register = device.reg()?.next()?;
+    Some(register.starting_address as _)
 }
 
-/// Signal QEMU to terminate simulation
+struct Uart(*mut u32);
+
+impl Uart {
+    fn write_byte(&self, byte: u8) {
+        unsafe { self.0.write_volatile(byte as _) }
+    }
+}
+
+impl Write for Uart {
+    fn write_str(&mut self, s: &str) -> Result<(), fmt::Error> {
+        s.bytes().for_each(|b| self.write_byte(b));
+        Ok(())
+    }
+}
+
+/// Signal QEMU to terminate simulation, through the "SiFive Test Finisher" device
 unsafe fn qemu_shutdown(test_finisher_device_ptr: *mut u32, exit_code: u16) -> ! {
     test_finisher_device_ptr.write((exit_code as u32) << 16 | 0x3333);
     // Never reached, assuming the device is present and we have the right address
