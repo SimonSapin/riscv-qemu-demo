@@ -1,6 +1,7 @@
-use core::cell::UnsafeCell;
 use core::ptr::NonNull;
+use core::sync::atomic::Ordering;
 use fdt::Fdt;
+use portable_atomic::AtomicPtr;
 
 pub fn parse() -> Fdt<'static> {
     unsafe { Fdt::from_ptr(device_tree_ptr()).expect("Failed to parse FDT") }
@@ -24,31 +25,27 @@ unsafe fn device_tree_ptr() -> *const u8 {
     boot_rom.add(offset).cast::<*const u8>().read()
 }
 
-pub struct Register(UnsafeCell<*mut ()>);
-
-unsafe impl Sync for Register {}
+pub struct Register(AtomicPtr<()>);
 
 impl Register {
     pub const fn new() -> Self {
-        Self(UnsafeCell::new(core::ptr::null_mut()))
+        Self(AtomicPtr::new(core::ptr::null_mut()))
     }
 
-    // FIXME: what are safety requirements?
-    pub unsafe fn find_compatible(&self, with: &str, fdt: &Fdt) {
+    pub fn find_compatible(&self, with: &str, fdt: &Fdt) {
         self.try_find_compatible(with, fdt)
             .expect("Failed to find device in FDT");
     }
 
-    unsafe fn try_find_compatible(&self, with: &str, fdt: &Fdt) -> Option<()> {
+    fn try_find_compatible(&self, with: &str, fdt: &Fdt) -> Option<()> {
         let device = fdt.find_compatible(&[with])?;
         let register = device.reg()?.next()?;
         let ptr = register.starting_address as _;
-        self.0.get().write(ptr);
+        self.0.store(ptr, Ordering::SeqCst);
         Some(())
     }
 
-    // FIXME: what are safety requirements?
-    pub unsafe fn cast<T>(&self) -> Option<NonNull<T>> {
-        NonNull::new(self.0.get().read().cast())
+    pub fn cast<T>(&self) -> Option<NonNull<T>> {
+        NonNull::new(self.0.load(Ordering::SeqCst).cast())
     }
 }

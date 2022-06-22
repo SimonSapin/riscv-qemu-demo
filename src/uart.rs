@@ -8,7 +8,7 @@ pub struct Uart(NonNull<u8>);
 
 impl Uart {
     pub fn new() -> Option<Self> {
-        unsafe { REGISTER.cast().map(Self) }
+        REGISTER.cast().map(Self)
     }
 
     pub fn write_byte(&self, byte: u8) {

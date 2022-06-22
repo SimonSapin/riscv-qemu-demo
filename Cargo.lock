@@ -42,6 +42,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d"
 
 [[package]]
+name = "portable-atomic"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1dc76d28851cb644083fe719db5de3d128de290a92cf6428419d7a51fa4760ed"
+
+[[package]]
 name = "proc-macro2"
 version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -122,6 +128,7 @@ name = "riscv-qemu-demo"
 version = "0.1.0"
 dependencies = [
  "fdt",
+ "portable-atomic",
  "riscv-rt",
 ]
 
