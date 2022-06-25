@@ -41,11 +41,11 @@ impl Register {
         let device = fdt.find_compatible(&[with])?;
         let register = device.reg()?.next()?;
         let ptr = register.starting_address as _;
-        self.0.store(ptr, Ordering::SeqCst);
+        self.0.store(ptr, Ordering::Release);
         Some(())
     }
 
     pub fn cast<T>(&self) -> Option<NonNull<T>> {
-        NonNull::new(self.0.load(Ordering::SeqCst).cast())
+        NonNull::new(self.0.load(Ordering::Acquire).cast())
     }
 }
