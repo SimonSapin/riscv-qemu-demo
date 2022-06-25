@@ -43,3 +43,29 @@ macro_rules! println {
         }
     };
 }
+
+// Adapted from https://github.com/rust-lang/rust/blob/1.61.0/library/std/src/macros.rs#L299-L321
+#[macro_export]
+macro_rules! dbg {
+    // NOTE: We cannot use `concat!` to make a static string as a format argument
+    // of `eprintln!` because `file!` could contain a `{` or
+    // `$val` expression could be a block (`{ .. }`), in which case the `eprintln!`
+    // will be malformed.
+    () => {
+        println!("[{}:{}]", core::file!(), core::line!())
+    };
+    ($val:expr $(,)?) => {
+        // Use of `match` here is intentional because it affects the lifetimes
+        // of temporaries - https://stackoverflow.com/a/48732525/1063961
+        match $val {
+            tmp => {
+                println!("[{}:{}] {} = {:#?}",
+                    core::file!(), core::line!(), core::stringify!($val), &tmp);
+                tmp
+            }
+        }
+    };
+    ($($val:expr),+ $(,)?) => {
+        ($($crate::dbg!($val)),+,)
+    };
+}
