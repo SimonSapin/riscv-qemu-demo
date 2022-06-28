@@ -7,6 +7,7 @@ edition = "2021"
 fdt = "0.1.3"
 portable-atomic = "0.3.2"
 riscv-rt = "0.8.1"
+qemu-fw-cfg = { path = "../fw-cfg-rs", default-features = false }
 
 [[bin]]
 name = "guest"

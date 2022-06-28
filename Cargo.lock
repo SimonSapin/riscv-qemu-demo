@@ -57,6 +57,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "qemu-fw-cfg"
+version = "0.2.0"
+
+[[package]]
 name = "quote"
 version = "0.6.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -129,6 +133,7 @@ version = "0.1.0"
 dependencies = [
  "fdt",
  "portable-atomic",
+ "qemu-fw-cfg",
  "riscv-rt",
 ]
 

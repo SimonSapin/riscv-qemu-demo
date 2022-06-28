@@ -5,8 +5,5 @@ opt-level = "s"
 target = "riscv32i-unknown-none-elf"
 
 [target.riscv32i-unknown-none-elf]
-rustflags = [
-  "-C", "link-arg=-Tmemory.x",
-  "-C", "link-arg=-Tlink.x",
-]
-runner = "qemu-system-riscv32 -nographic -machine virt -m 128 -bios none -kernel"
+rustflags = ["-C", "link-arg=-Tmemory.x", "-C", "link-arg=-Tlink.x"]
+runner = "qemu-system-riscv32 -machine virt -m 128 -device ramfb -serial stdio -bios none -kernel"
