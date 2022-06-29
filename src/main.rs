@@ -8,9 +8,9 @@ mod ramfb;
 mod test_finisher;
 
 #[riscv_rt::entry]
-fn main() -> ! {
+fn main(_hartid: usize, fdt_address: usize) -> ! {
     unsafe {
-        let fdt = &device_tree::parse();
+        let fdt = &device_tree::parse(fdt_address);
         uart::REGISTER.find_compatible("ns16550a", fdt);
         test_finisher::REGISTER.find_compatible("sifive,test0", fdt);
 
