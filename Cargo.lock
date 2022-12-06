@@ -84,6 +84,7 @@ dependencies = [
 [[package]]
 name = "qemu-fw-cfg"
 version = "0.2.0"
+source = "git+https://github.com/SimonSapin/qemu-fw-cfg-rs?rev=2022-06_riscv-qemu-demo#ceae702054f1d363117024cf2d3b86a6ff6eed29"
 
 [[package]]
 name = "quote"
@@ -119,9 +120,9 @@ checksum = "49b3de9ec5dc0a3417da371aab17d729997c15010e7fd24ff707773a33bddb64"
 
 [[package]]
 name = "riscv"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e2856a701069e2d262b264750d382407d272d5527f7a51d3777d1805b4e2d3c"
+checksum = "73fc4bc7113424814738fe79755a5764e392b3d4d1bc757e6aa6f61cede32095"
 dependencies = [
  "bare-metal",
  "bit_field",
@@ -140,9 +141,9 @@ dependencies = [
 
 [[package]]
 name = "riscv-rt"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "527ddfacbbfeed89256163c2655b0392c4aa76dd95c0189dc05044bf2c47c3f8"
+checksum = "7818495e5392d1ebb158a6f65da26c23d7f0fe93f7d6affa6395bf5b77035eae"
 dependencies = [
  "r0",
  "riscv",

@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 fdt = "0.1.3"
 portable-atomic = "0.3.2"
-qemu-fw-cfg = { path = "../fw-cfg-rs", default-features = false }
-riscv-rt = "0.9.0"
+qemu-fw-cfg = { git = "https://github.com/SimonSapin/qemu-fw-cfg-rs", rev = "2022-06_riscv-qemu-demo", default-features = false }
+riscv-rt = "0.10.0"
 
 [[bin]]
 name = "guest"
