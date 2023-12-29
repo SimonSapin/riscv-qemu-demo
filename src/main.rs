@@ -32,6 +32,7 @@ fn main(_hartid: usize, fdt_address: usize) -> ! {
         if cfg!(not(test)) {
             println!("Echoing. CTRL+C or CTRL+D to exit");
             let uart = uart::Uart::new().unwrap();
+            let mut len = 0;
             loop {
                 if let Some(b) = uart.read_byte() {
                     if b == b'\x03' || b == b'\x04' {
@@ -39,7 +40,11 @@ fn main(_hartid: usize, fdt_address: usize) -> ! {
                     }
                     uart.write_byte(b);
                     if b == b'\r' {
-                        uart.write_byte(b'\n')
+                        uart.write_byte(b'\n');
+                        println!("Line length: {len}");
+                        len = 0;
+                    } else {
+                        len += 1
                     }
                 }
             }

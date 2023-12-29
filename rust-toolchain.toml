@@ -1,3 +1,4 @@
 [toolchain]
-channel = "stable"
+# TODO: switch back to stable when 1.76.0 is out
+channel = "nightly"
 targets = ["riscv32i-unknown-none-elf"]

@@ -1,7 +1,7 @@
 use core::ptr::NonNull;
+use core::sync::atomic::AtomicPtr;
 use core::sync::atomic::Ordering;
 use fdt::Fdt;
-use portable_atomic::AtomicPtr;
 
 pub fn parse(fdt_address: usize) -> Fdt<'static> {
     unsafe { Fdt::from_ptr(fdt_address as *const u8).expect("Failed to parse FDT") }

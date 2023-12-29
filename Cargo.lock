@@ -12,16 +12,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "bare-metal"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8fe8f5a8a398345e52358e18ff07cc17a568fbca5c6f73873d3a62056309603"
-
-[[package]]
 name = "bit_field"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcb6dd1c2376d2e096796e234a70e17e94cc2d5d54ff8ce42b28cef1d0d359a4"
+
+[[package]]
+name = "critical-section"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7059fff8937831a9ae6f0fe4d658ffabf58f2ca96aa9dec1c889f936f705f216"
 
 [[package]]
 name = "embedded-hal"
@@ -67,12 +67,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "546c37ac5d9e56f55e73b677106873d9d9f5190605e41a856503623648488cae"
 
 [[package]]
-name = "portable-atomic"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dc76d28851cb644083fe719db5de3d128de290a92cf6428419d7a51fa4760ed"
-
-[[package]]
 name = "proc-macro2"
 version = "1.0.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -84,7 +78,8 @@ dependencies = [
 [[package]]
 name = "qemu-fw-cfg"
 version = "0.2.0"
-source = "git+https://github.com/SimonSapin/qemu-fw-cfg-rs?rev=2022-06_riscv-qemu-demo#ceae702054f1d363117024cf2d3b86a6ff6eed29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e1ae3d28ea832555d3859269a079fc085c6201e83e905f92d71412762f0f23f"
 
 [[package]]
 name = "quote"
@@ -120,12 +115,12 @@ checksum = "49b3de9ec5dc0a3417da371aab17d729997c15010e7fd24ff707773a33bddb64"
 
 [[package]]
 name = "riscv"
-version = "0.9.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73fc4bc7113424814738fe79755a5764e392b3d4d1bc757e6aa6f61cede32095"
+checksum = "aa3145d2fae3778b1e31ec2e827b228bdc6abd9b74bb5705ba46dcb82069bc4f"
 dependencies = [
- "bare-metal",
  "bit_field",
+ "critical-section",
  "embedded-hal",
 ]
 
@@ -134,16 +129,15 @@ name = "riscv-qemu-demo"
 version = "0.1.0"
 dependencies = [
  "fdt",
- "portable-atomic",
  "qemu-fw-cfg",
  "riscv-rt",
 ]
 
 [[package]]
 name = "riscv-rt"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7818495e5392d1ebb158a6f65da26c23d7f0fe93f7d6affa6395bf5b77035eae"
+checksum = "102c52c89defde24dedf9ac077cc69df77b85aa2400dd2d5aad6eea6a6a5c089"
 dependencies = [
  "r0",
  "riscv",
