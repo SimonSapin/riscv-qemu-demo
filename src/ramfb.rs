@@ -28,7 +28,10 @@ pub struct RamFbConfig {
 #[derive(Debug)]
 pub enum RamFbError {
     DeviceNotFound,
-    FwCfgWriteError(FwCfgWriteError),
+    FwCfgWriteError(
+        #[expect(dead_code)] // only used in #[derive(Debug)]
+        FwCfgWriteError,
+    ),
 }
 
 pub unsafe fn configure<Pixel>(
@@ -65,7 +68,7 @@ pub unsafe fn configure_device<Pixel>(
     let as_ptr = &ramfb_cfg as *const RAMFBCfg as *const u8;
     let len = 28; // without padding
     let as_bytes = core::slice::from_raw_parts(as_ptr, len);
-    fw_cfg.write_to_file(&device, as_bytes)
+    fw_cfg.write_to_file(device, as_bytes)
 }
 
 // Memory layout must match this exactly:

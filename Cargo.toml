@@ -2,12 +2,13 @@
 name = "riscv-qemu-demo"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.76"
+rust-version = "1.93"
 
 [dependencies]
 fdt = "0.1.3"
 qemu-fw-cfg = { version = "0.2.0", default-features = false }
-riscv-rt = "0.11.0"
+riscv = "0.16.0"
+riscv-rt = "0.17.1"
 
 [[bin]]
 name = "guest"
