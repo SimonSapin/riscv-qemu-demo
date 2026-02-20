@@ -1,4 +1,8 @@
-# Demo of freestanding Rust compiled to RISC-V running in QEMU
+# Moved to Codeberg
+
+<https://codeberg.org/SimonSapin/riscv-qemu-demo>
+
+## Demo of freestanding Rust compiled to RISC-V running in QEMU
 
 ```rust
 println!("Hello from Rust RISC-V!");
