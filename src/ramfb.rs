@@ -1,4 +1,5 @@
 use core::convert::TryFrom;
+use core::mem::size_of;
 use qemu_fw_cfg::FwCfg;
 use qemu_fw_cfg::FwCfgFile;
 use qemu_fw_cfg::FwCfgWriteError;
@@ -66,8 +67,7 @@ pub unsafe fn configure_device<Pixel>(
         stride: u32::try_from(config.stride_bytes).unwrap().to_be(),
     };
     let as_ptr = &ramfb_cfg as *const RAMFBCfg as *const u8;
-    let len = 28; // without padding
-    let as_bytes = core::slice::from_raw_parts(as_ptr, len);
+    let as_bytes = core::slice::from_raw_parts(as_ptr, RAMFBCfg::SIZE_WITHOUT_PADDING);
     fw_cfg.write_to_file(device, as_bytes)
 }
 
@@ -82,3 +82,12 @@ struct RAMFBCfg {
     height: u32,
     stride: u32,
 }
+
+impl RAMFBCfg {
+    const SIZE_WITHOUT_PADDING: usize = size_of::<u64>() + 5 * size_of::<u32>();
+}
+const _: () = {
+    assert!(
+        size_of::<RAMFBCfg>() == RAMFBCfg::SIZE_WITHOUT_PADDING.next_multiple_of(size_of::<u64>())
+    );
+};
